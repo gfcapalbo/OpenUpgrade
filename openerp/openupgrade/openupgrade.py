@@ -58,12 +58,9 @@ __all__ = [
     'check_values_selection_field',
     'move_field_m2o',
     'convert_field_to_html',
-<<<<<<< HEAD
     'map_values',
-=======
     'deactivate_workflow_transitions',
     'reactivate_workflow_transitions',
->>>>>>> hbrunn/8.0-disable_workflow_transitions
 ]
 
 
