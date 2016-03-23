@@ -420,18 +420,24 @@ def _migrate_stock_warehouse(cr, registry, res_id):
     max_sequence = max_sequence and max_sequence[0]['sequence'] or 0
 
     # TODO: apply max_sequence below
+    # updating the picking_type_in created in stock/stock_data.yml
+    record_to_update = self.pool.get('ir.model.data').search(
+        [('name', '=', 'picking_type_in')] , limit=1)
+    
+    in_type_id = record_to_update._update(
+        cr, uid, model='stock.picking.type', module='stock', 
+            values ={
+                'name': 'Receptions',
+                'warehouse_id': warehouse.id,
+                'code': 'incoming',
+                'sequence_id': in_seq_id,
+                'default_location_src_id': supplier_loc_id,
+                'default_location_dest_id': warehouse.wh_input_stock_loc_id.id,
+                'sequence': max_sequence + 1,
+                'color': color,
+                'xml_id': 'picking_type_in'
+            })
 
-    in_type_id = picking_type_obj.create(
-        cr, uid, {
-            'name': 'Receptions',
-            'warehouse_id': warehouse.id,
-            'code': 'incoming',
-            'sequence_id': in_seq_id,
-            'default_location_src_id': supplier_loc_id,
-            'default_location_dest_id': warehouse.wh_input_stock_loc_id.id,
-            'sequence': max_sequence + 1,
-            'color': color,
-        })
     out_type_id = picking_type_obj.create(
         cr, uid, {
             'name': 'Delivery Orders',
@@ -444,6 +450,7 @@ def _migrate_stock_warehouse(cr, registry, res_id):
             'sequence': max_sequence + 4,
             'color': color,
         })
+
     picking_type_obj.write(
         cr, uid, [in_type_id], {'return_picking_type_id': out_type_id})
 
