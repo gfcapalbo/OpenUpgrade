@@ -12,4 +12,6 @@ def deactivate_closed_accounts(env):
 
 @openupgrade.migrate(use_env=True)
 def migrate(env, version):
+    import pudb
+    pudb.set_trace()
     deactivate_closed_accounts(env)
