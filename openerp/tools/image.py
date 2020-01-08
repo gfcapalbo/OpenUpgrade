@@ -21,7 +21,7 @@
 
 import io
 import StringIO
-
+import logging
 from PIL import Image
 from PIL import ImageEnhance
 from random import random
@@ -29,6 +29,8 @@ from random import random
 # ----------------------------------------
 # Image resizing
 # ----------------------------------------
+
+_logger = logging.getLogger(__name__)
 
 def image_resize_image(base64_source, size=(1024, 1024), encoding='base64', filetype='PNG', avoid_if_small=False):
     """ Function to resize an image. The image will be resized to the given
@@ -64,8 +66,15 @@ def image_resize_image(base64_source, size=(1024, 1024), encoding='base64', file
         return False
     if size == (None, None):
         return base64_source
-    image_stream = io.BytesIO(base64_source.decode(encoding))
-    image = Image.open(image_stream)
+    try:
+        image_stream = io.BytesIO(base64_source.decode(encoding))
+        image = Image.open(image_stream)
+    except:
+        _logger.debug(
+            'FAILED RESIZE for image: %s ' % base64_source.decode(
+                encoding)[:16])
+        return base64_source
+
 
     asked_width, asked_height = size
     if asked_width is None:
@@ -80,7 +89,14 @@ def image_resize_image(base64_source, size=(1024, 1024), encoding='base64', file
 
     if image.size <> size:
         # create a thumbnail: will resize and keep ratios, then sharpen for better looking result
-        image.thumbnail(size, Image.ANTIALIAS)
+        try:
+            image.thumbnail(size, Image.ANTIALIAS)
+        except:
+            _logger.debug(
+                'THUMBNAIL CREATION FAIL for: %s ' % base64_source.decode(
+                    encoding)[:16]
+            )
+            return image
         sharpener = ImageEnhance.Sharpness(image.convert('RGBA'))
         resized_image = sharpener.enhance(2.0)
         # create a transparent image for background and paste the image on it
@@ -125,17 +141,24 @@ def image_colorize(original, randomize=True, color=(255, 255, 255)):
         :param color: background-color, if not randomize
     """
     # create a new image, based on the original one
-    original = Image.open(io.BytesIO(original))
-    image = Image.new('RGB', original.size)
-    # generate the background color, past it as background
-    if randomize:
-        color = (int(random() * 192 + 32), int(random() * 192 + 32), int(random() * 192 + 32))
-    image.paste(color)
-    image.paste(original, mask=original)
-    # return the new image
-    buffer = StringIO.StringIO()
-    image.save(buffer, 'PNG')
-    return buffer.getvalue()
+    original_old = original
+    try:
+        original = Image.open(io.BytesIO(original))
+        image = Image.new('RGB', original.size)
+        # generate the background color, past it as background
+        if randomize:
+            color = (int(random() * 192 + 32), int(random() * 192 + 32), int(random() * 192 + 32))
+        image.paste(color)
+        image.paste(original, mask=original)
+        # return the new image
+        buffer = StringIO.StringIO()
+        image.save(buffer, 'PNG')
+        return buffer.getvalue()
+    except:
+        _logger.debug(
+            'FAILED COLORIZE for image'
+        )
+        return original_old
 
 # ----------------------------------------
 # Misc image tools

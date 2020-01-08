@@ -22,6 +22,9 @@
 import math
 import re
 
+import logging
+
+_logger = logging.getLogger(__name__)
 from _common import ceiling
 
 from openerp import tools, SUPERUSER_ID
@@ -524,7 +527,12 @@ class product_product(osv.osv):
     def _get_image(self, cr, uid, ids, name, args, context=None):
         result = dict.fromkeys(ids, False)
         for obj in self.browse(cr, uid, ids, context=context):
-            result[obj.id] = tools.image_get_resized_images(obj.image, avoid_resize_medium=True)
+            try:
+                result[obj.id] = tools.image_get_resized_images(obj.image, avoid_resize_medium=True)
+            except:
+                _logger.debug(
+                    'FAILED RESIZE for PRODUCT: %s, %s ' % (obj.name, obj.id))
+
         return result
 
     def _set_image(self, cr, uid, id, name, value, args, context=None):
