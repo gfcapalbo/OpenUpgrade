@@ -71,8 +71,15 @@ def image_resize_image(base64_source, size=(1024, 1024), encoding='base64', file
         return False
     if size == (None, None):
         return base64_source
-    image_stream = StringIO.StringIO(base64_source.decode(encoding))
-    image = Image.open(image_stream)
+    try:
+        image_stream = StringIO.StringIO(base64_source.decode(encoding))
+        image = Image.open(image_stream)
+    except:
+        _logger.debug(
+            'FAILED RESIZE for image: %s ' % base64_source.decode(
+                encoding)[:16]
+        )
+        return base64_source
     # store filetype here, as Image.new below will lose image.format
     filetype = (filetype or image.format).upper()
 
@@ -185,17 +192,24 @@ def image_colorize(original, randomize=True, color=(255, 255, 255)):
         :param color: background-color, if not randomize
     """
     # create a new image, based on the original one
-    original = Image.open(StringIO.StringIO(original))
-    image = Image.new('RGB', original.size)
-    # generate the background color, past it as background
-    if randomize:
-        color = (randint(32, 224), randint(32, 224), randint(32, 224))
-    image.paste(color, box=(0, 0) + original.size)
-    image.paste(original, mask=original)
-    # return the new image
-    buffer = StringIO.StringIO()
-    image.save(buffer, 'PNG')
-    return buffer.getvalue()
+    original_old = original
+    try:
+        original = Image.open(StringIO.StringIO(original))
+        image = Image.new('RGB', original.size)
+        # generate the background color, past it as background
+        if randomize:
+            color = (randint(32, 224), randint(32, 224), randint(32, 224))
+        image.paste(color, box=(0, 0) + original.size)
+        image.paste(original, mask=original)
+        # return the new image
+        buffer = StringIO.StringIO()
+        image.save(buffer, 'PNG')
+        return buffer.getvalue()
+    except:
+        _logger.debug(
+            'FAILED COLORIZE for image'
+        )
+        return original_old
 
 # ----------------------------------------
 # Misc image tools
