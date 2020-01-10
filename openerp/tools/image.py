@@ -24,9 +24,12 @@ try:
 except ImportError:
     import StringIO
 
+import logging
 from PIL import Image
 from PIL import ImageEnhance
 from random import randint
+
+_logger = logging.getLogger(__name__)
 
 # Preload PIL with the minimal subset of image formats we need
 Image.preinit()
