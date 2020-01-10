@@ -460,9 +460,9 @@ class product_template(osv.osv):
             try:
                 result[obj.id] = tools.image_get_resized_images(obj.image, avoid_resize_medium=True)
             except:
-                logger.debug('failed resize while fetching %s' % obj.id
-                self.pool.get('product.product').write(
-                    cr, uid, [obj.id], {'image':False}, context=context)
+                _logger.debug('failed resize while fetching %s' % obj.id)
+                self.pool.get('product.template').write(
+                    cr, uid, [obj.id], {'image': False}, context=context)
                 result.pop(obj.id, None)
         return result
 
