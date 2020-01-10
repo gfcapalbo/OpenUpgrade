@@ -82,7 +82,9 @@ def image_resize_image(base64_source, size=(1024, 1024), encoding='base64', file
             'FAILED RESIZE for image: %s ' % base64_source.decode(
                 encoding)[:16]
         )
-        return base64_source
+        # error will be catched by product.get_image, and we will
+        # delete product.image
+        raise
     # store filetype here, as Image.new below will lose image.format
     filetype = (filetype or image.format).upper()
 

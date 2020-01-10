@@ -22,6 +22,7 @@
 import math
 import re
 import time
+import logging
 from _common import ceiling
 
 
@@ -33,6 +34,8 @@ import psycopg2
 
 import openerp.addons.decimal_precision as dp
 from openerp.tools.float_utils import float_round, float_compare
+
+_logger = logging.getLogger(__name__)
 
 def ean_checksum(eancode):
     """returns the checksum of an ean string of length 13, returns -1 if the string has the wrong length"""
@@ -457,8 +460,9 @@ class product_template(osv.osv):
             try:
                 result[obj.id] = tools.image_get_resized_images(obj.image, avoid_resize_medium=True)
             except:
+                logger.debug('failed resize while fetching %s' % obj.id
                 obj.write({'image':False})
-                result[obj.id] = False
+                result.pop(obj.id, None)
         return result
 
     def _set_image(self, cr, uid, id, name, value, args, context=None):
