@@ -253,10 +253,14 @@ class ProductProduct(models.Model):
             self.image_small = self.image_variant
             self.image = self.image_variant
         else:
-            resized_images = tools.image_get_resized_images(self.image_variant, return_big=True, avoid_resize_medium=True)
-            self.image_medium = resized_images['image_medium']
-            self.image_small = resized_images['image_small']
-            self.image = resized_images['image']
+            try:
+                resized_images = tools.image_get_resized_images(self.image_variant, return_big=True, avoid_resize_medium=True)
+                self.image_medium = resized_images['image_medium']
+                self.image_small = resized_images['image_small']
+                self.image = resized_images['image']
+            except:
+                _logger.debug(
+                    'FAIL IMG FETCH PRODUCT %s' % self.id + ',' + self.name)
         if not self.image_medium:
             self.image_medium = self.product_tmpl_id.image_medium
         if not self.image_small:
