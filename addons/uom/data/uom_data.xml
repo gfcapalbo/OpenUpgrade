@@ -33,12 +33,14 @@
             <field name="factor" eval="1.0"/>
             <field name="rounding" eval="0.001"/>
         </record>
+        <!--
        <record id="product_uom_dozen" model="uom.uom">
             <field name="category_id" ref="uom.product_uom_categ_unit"/>
             <field name="name">Dozen(s)</field>
             <field name="factor_inv" eval="12"/>
             <field name="uom_type">bigger</field>
-        </record>
+            </record>
+        -->
         <record id="product_uom_kgm" model="uom.uom">
             <field name="category_id" ref="product_uom_categ_kgm"/>
             <field name="name">kg</field>
